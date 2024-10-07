@@ -62,7 +62,10 @@ export default function Header() {
       };
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert("Error al descargar la imagen: ", error.message);
+        Alert.alert(
+          "Error al descargar la imagen: ",
+          `From header: ${error.message}\nStack: ${error.stack}`
+        );
       }
     }
   }

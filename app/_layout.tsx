@@ -1,5 +1,5 @@
 import { Slot } from "expo-router";
-import { KeyboardAvoidingView, ScrollView, Platform } from "react-native";
+import { KeyboardAvoidingView, Platform } from "react-native";
 import { SessionProvider } from "@/context/ctx";
 
 export default function Root() {
@@ -9,11 +9,9 @@ export default function Root() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <SessionProvider>
           <Slot />
         </SessionProvider>
-      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

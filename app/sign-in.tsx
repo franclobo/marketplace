@@ -5,6 +5,7 @@ import { Input, CheckBox } from "@rneui/themed";
 import { useSession } from "@/context/ctx";
 import { validateEmail, validatePassword } from "@/hooks/useValidation";
 import { Redirect } from "expo-router";
+import Feather from "@expo/vector-icons/Feather";
 
 const MAX_ATTEMPTS = 6;
 
@@ -14,6 +15,11 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleForgotPassword = () => {
     return <Redirect href="/reset-password" />;
@@ -82,25 +88,30 @@ export default function Auth() {
           autoCapitalize="none"
         />
       </View>
-      <View className="py-2 w-full">
+      <View className="py-2 w-full relative">
         <Input
+          secureTextEntry={!showPassword}
           label="Password"
           leftIcon={{ type: "font-awesome", name: "lock" }}
           onChangeText={(text) => setPassword(text)}
           value={password}
-          secureTextEntry={true}
           placeholder="Password"
           autoCapitalize="none"
         />
+        <TouchableOpacity onPress={handleShowPassword} className="absolute bottom-14 right-4">
+          {showPassword ? (
+            <Feather name="eye" size={24} color="black" />
+          ) : (
+            <Feather name="eye-off" size={24} color="black" />
+          )}
+        </TouchableOpacity>
       </View>
       <CheckBox
         title="Recuérdame"
         checked={rememberMe}
         onPress={() => setRememberMe(!rememberMe)}
       />
-      <TouchableOpacity
-        onPress={handleForgotPassword}
-      >
+      <TouchableOpacity onPress={handleForgotPassword}>
         <Text className="text-blue">Olvidé mi contraseña</Text>
       </TouchableOpacity>
       {attempts > 0 && (

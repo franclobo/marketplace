@@ -35,7 +35,10 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
       };
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert("Error al descargar la imagen: ", error.message);
+        Alert.alert(
+          "Error al descargar la imagen: ",
+          `From avatar: ${error.message}\nStack: ${error.stack}`
+        );
       }
     }
   }

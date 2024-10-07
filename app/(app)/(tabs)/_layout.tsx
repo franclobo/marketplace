@@ -9,12 +9,11 @@ export default function TabLayout() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Tabs
           screenOptions={{ tabBarActiveTintColor: "blue", headerShown: false }}
         >
           <Tabs.Screen
-            name="index"
+            name="(home)"
             options={{
               title: "Inicio",
               tabBarIcon: ({ color }) => (
@@ -32,6 +31,15 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
+            name="products"
+            options={{
+              title: "Productos",
+              tabBarIcon: ({ color }) => (
+                <FontAwesome5 size={28} name="box" color={color} />
+              ),
+            }}
+          />
+          <Tabs.Screen
             name="profile"
             options={{
               title: "Perfil",
@@ -41,7 +49,6 @@ export default function TabLayout() {
             }}
           />
         </Tabs>
-      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

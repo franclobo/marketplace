@@ -1,10 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View, Text, TextInput, TouchableOpacity, Modal, Alert, Image } from 'react-native';
-import { supabase } from '@/lib/supabase';
+import React, { useEffect, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  Alert,
+  Image,
+} from "react-native";
+import { supabase } from "@/lib/supabase";
 import { useSession } from "@/context/ctx";
-import { StorageCategory } from '@/types';
+import { StorageCategory } from "@/types/index";
 import * as ImagePicker from "expo-image-picker";
-
 
 export default function Admin() {
   const { session } = useSession();
@@ -19,15 +29,18 @@ export default function Admin() {
   const [category, setCategory] = useState("");
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
 
-
-  const categories = Object.keys(StorageCategory).filter((key) => isNaN(Number(key)));
+  const categories = Object.keys(StorageCategory).map((key) => ({
+    id: key,
+    name: StorageCategory[key as keyof typeof StorageCategory],
+  }));
 
   useEffect(() => {
     if (bannerUrl) downloadImage(bannerUrl);
   }, [bannerUrl]);
 
-  async function downloadImage(path: string) {
+  async function downloadImage(path: string): Promise<string | null> {
     try {
+      setLoading(true);
       const { data, error } = await supabase.storage
         .from("pictures")
         .download(path);
@@ -37,14 +50,25 @@ export default function Admin() {
       }
 
       const fr = new FileReader();
-      fr.readAsDataURL(data);
-      fr.onload = () => {
-        setBannerUrl(fr.result as string);
-      };
+      return new Promise<string>((resolve, reject) => {
+        fr.readAsDataURL(data);
+        fr.onload = () => {
+          setBannerUrl(fr.result as string);
+          resolve(fr.result as string);
+        };
+        fr.onerror = () => reject(new Error("Error al leer la imagen"));
+      });
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert("Error al descargar la imagen: ", error.message);
+        Alert.alert(
+          "Error al descargar la imagen: ",
+          `From admin: ${error.message}\nStack: ${error.stack}`
+        );
+        console.log(`From admin: ${error.message}\nStack: ${error.stack}`);
       }
+      return null;
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -99,20 +123,22 @@ export default function Admin() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (session) getStore();
   }, [session]);
 
   async function getStore() {
-    setLoading(true);
     try {
+      setLoading(true);
       if (!session?.user) throw new Error("No user on the session!");
 
       const { data, error, status } = await supabase
         .from("stores")
-        .select(`name, description, address, phone, products, owner, category, banner`)
+        .select(
+          `name, description, address, phone, products, owner, category, banner`
+        )
         .eq("id", session?.user.id)
         .single();
       if (error && status !== 406) {
@@ -146,8 +172,8 @@ export default function Admin() {
     products,
     owner,
     category,
-    banner
-  }:{
+    banner,
+  }: {
     name: string;
     description: string;
     address: string;
@@ -190,7 +216,6 @@ export default function Admin() {
     }
   };
 
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -205,17 +230,18 @@ export default function Admin() {
             onPress={() => uploadBanner()}
             className="bg-primary rounded-lg p-2"
           >
-            {
-              bannerUrl ? (
-                <Image
-                  source={{ uri: bannerUrl }}
-                  accessibilityLabel="Banner"
-                  style={{ width: '100%', height: 200 }}
-                />
-              ) : (
-                <Image source={require("@/assets/images/placeholder_image.png")} style={{ width: '100%', height: 200 }} />
-              )
-            }
+            {bannerUrl ? (
+              <Image
+                source={{ uri: bannerUrl }}
+                accessibilityLabel="Banner"
+                style={{ width: "100%", height: 200 }}
+              />
+            ) : (
+              <Image
+                source={require("@/assets/images/placeholder_image.png")}
+                style={{ width: "100%", height: 200 }}
+              />
+            )}
           </TouchableOpacity>
           <View className="flex gap-2 p-2">
             <TextInput
@@ -231,7 +257,7 @@ export default function Admin() {
               value={description || ""}
               onChangeText={(text) => setDescription(text)}
               className="border border-solid border-gray rounded-lg p-2"
-              style={{textAlignVertical: "top"}}
+              style={{ textAlignVertical: "top" }}
             />
             <TextInput
               placeholder="Dirección"
@@ -255,7 +281,9 @@ export default function Admin() {
               onPress={() => setModalVisible(true)}
               className="bg-primary rounded-lg p-2"
             >
-              <Text className="text-white text-center">Seleccionar categoría</Text>
+              <Text className="text-white text-center">
+                Seleccionar categoría
+              </Text>
             </TouchableOpacity>
 
             <Modal
@@ -268,14 +296,14 @@ export default function Admin() {
                 <View className="bg-white p-4 border border-gray-300 rounded-lg">
                   {categories.map((category) => (
                     <TouchableOpacity
-                      key={category}
+                      key={category.id}
                       onPress={() => {
-                        setCategory(category);
+                        setCategory(category.name);
                         setModalVisible(false);
                       }}
                       className="bg-blue-500 text-white rounded-lg p-2 my-2"
                     >
-                      <Text>{category}</Text>
+                      <Text>{category.name}</Text>
                     </TouchableOpacity>
                   ))}
                   <TouchableOpacity
@@ -312,11 +340,10 @@ export default function Admin() {
                   banner: bannerUrl || "",
                 })
               }
-              className="bg-primary text-white rounded-lg p-2"
+              className="bg-primary rounded-lg p-2"
+              disabled={loading}
             >
-              <Text className="text-white text-center">
-                {loading ? "Cargando ..." : "Actualizar"}
-              </Text>
+              <Text className="text-white text-center">Guardar cambios</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -324,4 +351,3 @@ export default function Admin() {
     </KeyboardAvoidingView>
   );
 }
-
