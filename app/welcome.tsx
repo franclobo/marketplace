@@ -15,7 +15,7 @@ const Onboarding = () => {
     <SafeAreaView className="flex h-full items-center justify-between bg-white">
       <TouchableOpacity
         onPress={() => {
-          router.replace("/sign-up");
+          router.replace("/start");
         }}
         className="w-full flex justify-end items-end p-5"
       >
@@ -54,7 +54,7 @@ const Onboarding = () => {
         title={isLastSlide ? "Empezar" : "Siguiente"}
         onPress={() => {
           if (isLastSlide) {
-            router.replace("/sign-up");
+            router.replace("/start");
           } else {
             swiperRef.current?.scrollBy(1);
           }

@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.franclobo.marketplace"
     },
     "android": {
       "package": "com.franclobo.marketplace",
@@ -21,7 +22,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +38,9 @@
         {
           "photosPermission": "La aplicación accede a tus fotos para permitirte compartirlas con tus amigos."
         }
+      ],
+      [
+        "@react-native-google-signin/google-signin"
       ]
     ],
     "experiments": {
